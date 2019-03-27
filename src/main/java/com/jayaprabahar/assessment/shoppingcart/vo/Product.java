@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.jayaprabahar.prep.shoppingcart.vo;
+package com.jayaprabahar.assessment.shoppingcart.vo;
 
 import java.math.BigDecimal;
 import java.util.Currency;

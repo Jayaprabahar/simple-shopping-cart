@@ -1,16 +1,14 @@
 /**
  * 
  */
-package com.jayaprabahar.prep.shoppingcart;
+package com.jayaprabahar.assessment.shoppingcart;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
 
-import org.apache.commons.collections4.MapUtils;
-
-import com.jayaprabahar.prep.shoppingcart.vo.Action;
-import com.jayaprabahar.prep.shoppingcart.vo.Product;
-import com.jayaprabahar.prep.shoppingcart.vo.ShoppingCart;
+import com.jayaprabahar.assessment.shoppingcart.vo.Action;
+import com.jayaprabahar.assessment.shoppingcart.vo.Product;
+import com.jayaprabahar.assessment.shoppingcart.vo.ShoppingCart;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,7 +16,7 @@ import lombok.Data;
 /**
  * <p> Project : shoppingcart </p>
  * <p> Title : Shopping.java </p>
- * <p> Description: Shopper simulates a Session of shopping person </p>
+ * <p> Description: Shopper does shopping. Simulates a Session of shopping person </p>
  * <p> Created: Mar 25, 2019</p>
  * 
  * @version 1.0
@@ -31,6 +29,8 @@ public class Shopper {
 	ShoppingCart shoppingCart;
 
 	/**
+	 * Create a shopper instance based on shopper id.
+	 * 
 	 * @param shopperId
 	 */
 	public Shopper(int shopperId) {
@@ -55,14 +55,14 @@ public class Shopper {
 	 * @return updatedShoppingCart
 	 */
 	ShoppingCart shopping(Product product, int unitCount, Action shopperAction) {
-		if (shoppingCart == null || MapUtils.isEmpty(shoppingCart.getCartedProducts()) || shoppingCart.getTotalPrice() == BigDecimal.ZERO)
+		if (shoppingCart == null)
 			shoppingCart = getEmptyShoppingCart();
 
 		int updatedUnitCount = shoppingCart.getCartedProducts().getOrDefault(product, 0) + unitCount;
 		shoppingCart.getCartedProducts().put(product, Math.max(0, updatedUnitCount * (shopperAction.equals(Action.ADD) ? 1 : -1)));
 
 		// Remove products with 0 units. This happens when the users add and removes the same number of
-		// units
+		// units for a specific product
 		shoppingCart.getCartedProducts().entrySet().removeIf(k -> k.getValue() == 0);
 		shoppingCart.updateTotals();
 
