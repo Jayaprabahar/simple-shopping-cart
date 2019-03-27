@@ -37,28 +37,18 @@ public class ShopperTest {
 	}
 
 	@Test
-	public void shoppingTest() {
+	public void shoppingTest_Step2() {
 		// Given - empty shopping cart
-		Product doveSoap = new Product(101, "Dove Bathing Soap", BigDecimal.valueOf(39.99));
 		Shopper shopper = new Shopper(shopperId);
-		
-		assertEquals(BigDecimal.valueOf(0), shopper.getShoppingCart().getTotalPrice());
-		assertEquals(0, shopper.getShoppingCart().getTotalUnits());
+		Product doveSoap = new Product(101, "Dove Bathing Soap", BigDecimal.valueOf(39.99));
 
 		// When
 		shopper.shopping(doveSoap, 5, Action.ADD);
+		shopper.shopping(doveSoap, 3, Action.ADD);
 
 		// Then
-		assertEquals(BigDecimal.valueOf(199.95), shopper.getShoppingCart().getTotalPrice());
-		assertEquals(5, shopper.getShoppingCart().getTotalUnits());
-		
-		// When
-		shopper.shopping(doveSoap, 5, Action.REMOVE);
-		
-		// Then
-		assertEquals(BigDecimal.valueOf(0), shopper.getShoppingCart().getTotalPrice());
-		assertEquals(0, shopper.getShoppingCart().getTotalUnits());
-
+		assertEquals(8, shopper.getShoppingCart().getTotalUnits());
+		assertEquals(BigDecimal.valueOf(319.32), shopper.getShoppingCart().getTotalPrice());
 	}
 
 }

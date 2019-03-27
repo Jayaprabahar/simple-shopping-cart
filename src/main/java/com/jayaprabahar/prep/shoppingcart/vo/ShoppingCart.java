@@ -24,21 +24,25 @@ import lombok.Data;
 public class ShoppingCart {
 
 	Map<Product, Integer> cartedProducts;
-	BigDecimal totalPrice;
 	int totalUnits;
+	BigDecimal totalPrice;
+	BigDecimal salesTaxPercent;
+	BigDecimal salesTaxAmount;
 
 	/**
 	 * Update the total price every time when it is called
 	 */
 	public void updateTotals() {
-		if (MapUtils.isEmpty(cartedProducts)) {
-			setTotalPrice(BigDecimal.ZERO);
-			setTotalUnits(0);
-		} else {
+		setTotalPrice(BigDecimal.ZERO);
+		setTotalUnits(0);
+
+		if (MapUtils.isNotEmpty(cartedProducts)) {
 			cartedProducts.forEach((k, v) -> {
-				totalPrice = totalPrice.add(k.getUnitPrice().multiply(new BigDecimal(v)));
+				totalPrice = totalPrice.add(k.getUnitPrice().multiply(new BigDecimal(v))).setScale(2, BigDecimal.ROUND_HALF_UP);
 				totalUnits += v;
 			});
+			salesTaxAmount = totalPrice.multiply(salesTaxPercent).divide(new BigDecimal(100));
+			totalPrice.add(salesTaxAmount);
 		}
 	}
 
