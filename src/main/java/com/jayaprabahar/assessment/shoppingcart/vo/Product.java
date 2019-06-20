@@ -20,7 +20,7 @@ import lombok.Value;
 @Value
 public class Product {
 
-	int productCode;
+	private int productCode;
 	String productName;
 	BigDecimal unitPrice;
 	Currency unitCurrency = Currency.getInstance(Locale.getDefault());

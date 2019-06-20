@@ -4,12 +4,13 @@
 package com.jayaprabahar.assessment.shoppingcart.vo;
 
 import java.math.BigDecimal;
-import java.util.Map;
+import java.util.List;
+import java.util.Optional;
 
-import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 
 /**
  * <p> Project : shoppingcart </p>
@@ -19,31 +20,48 @@ import lombok.Data;
  * 
  * @version 1.0
  */
-@Data
+@Getter
 @AllArgsConstructor
 public class ShoppingCart {
 
-	Map<Product, Integer> cartedProducts;
+	List<ShoppingItem> shoppingItems;
 	int totalUnits;
 	BigDecimal totalPrice;
-	BigDecimal salesTaxPercent;
 	BigDecimal salesTaxAmount;
+	BigDecimal salesTaxPercent;
+
+	public ShoppingCart updateShoppingCart(Product product, int unitCount, Action shopperAction) {
+		Optional<ShoppingItem> shopItem = shoppingItems.stream().filter(e -> e.getProduct().equals(product)).findFirst();
+
+		if (shopItem.isPresent())
+			shopItem.get().updateItemCount(unitCount * (shopperAction.equals(Action.ADD) ? 1 : -1));
+		else
+			shoppingItems.add(new ShoppingItem(product, unitCount));
+
+		// Remove products with less than or equal to 0 units. This happens when users add and removes the
+		// same number of units for a specific product
+		shoppingItems.removeIf(e -> e.getItemCount() <= 0);
+
+		// Recalculate total price and count
+		totalPrice = BigDecimal.ZERO;
+		totalUnits = 0;
+
+		if (!CollectionUtils.isNotEmpty(shoppingItems)) {
+			shoppingItems.stream().forEach(e -> {
+				totalUnits += e.getItemCount();
+				totalPrice.add(e.getTotalPricePerItem());
+			});
+		}
+		return this;
+	}
 
 	/**
-	 * Update the total price and total count every time when it is called
+	 * This will apply sales Tax amount
+	 * 
+	 * @param salesTaxPercent
 	 */
-	public void updateTotals() {
-		setTotalPrice(BigDecimal.ZERO);
-		setTotalUnits(0);
-
-		if (MapUtils.isNotEmpty(cartedProducts)) {
-			cartedProducts.forEach((k, v) -> {
-				totalPrice = totalPrice.add(k.getUnitPrice().multiply(new BigDecimal(v))).setScale(2, BigDecimal.ROUND_HALF_UP);
-				totalUnits += v;
-			});
-			salesTaxAmount = totalPrice.multiply(salesTaxPercent).divide(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_UP);
-			totalPrice = totalPrice.add(salesTaxAmount);
-		}
+	public void applySalesTax(BigDecimal salesTaxPercent) {
+		this.salesTaxPercent = salesTaxPercent;
 	}
 
 	/**
@@ -53,8 +71,8 @@ public class ShoppingCart {
 	 * @return
 	 */
 	public int getUnitCountByProductCode(int productCode) {
-		if (MapUtils.isNotEmpty(cartedProducts)) {
-			return cartedProducts.entrySet().stream().filter(k -> (k.getKey().getProductCode() == productCode)).map(key -> key.getValue()).findFirst().orElse(0);
+		if (!CollectionUtils.isNotEmpty(shoppingItems)) {
+			return shoppingItems.stream().filter(i -> i.getProduct().getProductCode() == productCode).map(si -> si.getItemCount()).findFirst().orElse(0);
 		}
 		return 0;
 	}
@@ -66,8 +84,8 @@ public class ShoppingCart {
 	 * @return
 	 */
 	public BigDecimal getUnitPriceByProductCode(int productCode) {
-		if (MapUtils.isNotEmpty(cartedProducts)) {
-			return cartedProducts.entrySet().stream().filter(k -> (k.getKey().getProductCode() == productCode)).map(key -> key.getKey().getUnitPrice()).findFirst().orElse(BigDecimal.ZERO);
+		if (!CollectionUtils.isNotEmpty(shoppingItems)) {
+			return shoppingItems.stream().filter(i -> i.getProduct().getProductCode() == productCode).map(si -> si.getTotalPricePerItem()).findFirst().orElse(BigDecimal.ZERO);
 		}
 		return BigDecimal.ZERO;
 	}

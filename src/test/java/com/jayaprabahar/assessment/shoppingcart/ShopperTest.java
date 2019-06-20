@@ -38,16 +38,16 @@ public class ShopperTest {
 
 	@Test
 	public void shoppingTest_emptyCart() {
+
 		// Given - empty shopping cart
 		Shopper shopper = new Shopper(shopperId);
 
 		// When - Nothing added
-
 		// Then
 		assertEquals(0, shopper.getShoppingCart().getTotalUnits());
 		assertEquals(BigDecimal.ZERO, shopper.getShoppingCart().getTotalPrice());
 
-		assertNotEquals(BigDecimal.valueOf(199.95), shopper.getShoppingCart().getTotalPrice());
+		assertEquals(BigDecimal.valueOf(199.95), shopper.getShoppingCart().getTotalPrice());
 		assertNotEquals(1, shopper.getShoppingCart().getTotalUnits());
 	}
 
@@ -170,7 +170,7 @@ public class ShopperTest {
 		assertEquals(0, shopper.getShoppingCart().getUnitCountByProductCode(102));
 		assertEquals(0, shopper.getShoppingCart().getUnitCountByProductCode(103));
 
-		shopper.getShoppingCart().setSalesTaxPercent(BigDecimal.valueOf(12.5));
+		shopper.getShoppingCart().applySalesTax(BigDecimal.valueOf(12.5));
 
 		assertEquals(BigDecimal.valueOf(12.5), shopper.getShoppingCart().getSalesTaxPercent());
 		assertNotEquals(BigDecimal.ZERO, shopper.getShoppingCart().getSalesTaxPercent());
